@@ -491,13 +491,13 @@ func TestResolveComponentInstall(t *testing.T) {
 			want:      CommandSequence{{"go", "install", "github.com/Gentleman-Programming/engram/cmd/engram@latest"}},
 		},
 		{
-			name:      "gga on windows cleans temp dir and uses git bash",
+			name:      "gga on windows cleans temp dir and uses git bash with auto-confirm",
 			profile:   system.PlatformProfile{OS: "windows", PackageManager: "winget"},
 			component: model.ComponentGGA,
 			want: CommandSequence{
 				{"powershell", "-NoProfile", "-Command", fmt.Sprintf("Remove-Item -Recurse -Force -ErrorAction SilentlyContinue '%s'; exit 0", filepath.Join(os.TempDir(), "gentleman-guardian-angel"))},
 				{"git", "clone", "https://github.com/Gentleman-Programming/gentleman-guardian-angel.git", filepath.Join(os.TempDir(), "gentleman-guardian-angel")},
-				{gitBashPath(), bashScriptPath(system.PlatformProfile{OS: "windows"}, filepath.Join(os.TempDir(), "gentleman-guardian-angel", "install.sh"))},
+				{gitBashPath(), "-c", fmt.Sprintf("echo 'y' | %s", bashScriptPath(system.PlatformProfile{OS: "windows"}, filepath.Join(os.TempDir(), "gentleman-guardian-angel", "install.sh")))},
 			},
 		},
 		{

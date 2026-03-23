@@ -124,6 +124,7 @@ func resolveOpenCodeInstall(profile system.PlatformProfile) (CommandSequence, er
 // resolveGGAInstall returns the correct install command sequence for GGA per platform.
 // - darwin: brew tap + brew install (via Gentleman-Programming/homebrew-tap)
 // - linux: git clone + install.sh (GGA is a pure Bash project, NOT a Go module)
+// Handles non-interactive install by auto-confirming the Y/N prompt.
 func resolveGGAInstall(profile system.PlatformProfile) (CommandSequence, error) {
 	switch profile.PackageManager {
 	case "brew":
@@ -149,7 +150,7 @@ func resolveGGAInstall(profile system.PlatformProfile) (CommandSequence, error) 
 		return CommandSequence{
 			{"powershell", "-NoProfile", "-Command", fmt.Sprintf("Remove-Item -Recurse -Force -ErrorAction SilentlyContinue '%s'; exit 0", cloneDst)},
 			{"git", "clone", "https://github.com/Gentleman-Programming/gentleman-guardian-angel.git", cloneDst},
-			{bash, bashScriptPath(profile, filepath.Join(cloneDst, "install.sh"))},
+			{bash, "-c", fmt.Sprintf("echo 'y' | %s", bashScriptPath(profile, filepath.Join(cloneDst, "install.sh")))},
 		}, nil
 	default:
 		return nil, fmt.Errorf(
